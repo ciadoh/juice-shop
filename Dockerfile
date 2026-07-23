@@ -1,23 +1,23 @@
 FROM node:24 AS installer
-COPY . /juice-shop
+COPY. /juice-shop
 WORKDIR /juice-shop
-RUN npm install -g typescript@~5.3.3
-RUN npm install --omit=dev --unsafe-perm
-RUN npm dedupe --omit=dev
-RUN rm -rf frontend/node_modules
-RUN rm -rf frontend/.angular
-RUN rm -rf frontend/src/assets
-RUN mkdir logs
-RUN chown -R 65532 logs
-RUN chgrp -R 0 ftp/ frontend/dist/ logs/ data/ i18n/
-RUN chmod -R g=u ftp/ frontend/dist/ logs/ data/ i18n/
-RUN rm ftp/legal.md || true
-RUN rm i18n/*.json || true
+RUN npm install -g typescript@~5.3.3 && \
+    npm install --omit=dev --unsafe-perm && \
+    npm dedupe --omit=dev && \
+    rm -rf frontend/node_modules && \
+    rm -rf frontend/.angular && \
+    rm -rf frontend/src/assets && \
+    mkdir logs && \
+    chown -R 65532 logs && \
+    chgrp -R 0 ftp/ frontend/dist/ logs/ data/ i18n/ && \
+    chmod -R g=u ftp/ frontend/dist/ logs/ data/ i8rn/ && \
+    rm ftp/legal.md || true && \
+    rm i18n/*.json || true
 
 # keep version in sync with package.json
 ARG CYCLONEDX_NPM_VERSION='^2.0.0||^3.0.0||^4.0.0'
-RUN npm install -g @cyclonedx/cyclonedx-npm@$CYCLONEDX_NPM_VERSION
-RUN npm run sbom
+RUN npm install -g @cyclonedx/cyclonedx-npm@$CYCLONEDX_NPM_VERSION && \
+    npm run sbom
 
 FROM gcr.io/distroless/nodejs24-debian13
 ARG BUILD_DATE
@@ -35,7 +35,7 @@ LABEL maintainer="Bjoern Kimminich <bjoern.kimminich@owasp.org>" \
     org.opencontainers.image.revision=$VCS_REF \
     org.opencontainers.image.created=$BUILD_DATE
 WORKDIR /juice-shop
-COPY --from=installer --chown=65532:0 /juice-shop .
+COPY --from=installer --chown=65532:0 /juice-shop.
 USER 65532
 EXPOSE 3000
 CMD ["/juice-shop/build/app.js"]
